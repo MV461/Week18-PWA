@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Vue.js Pet Depot (Week 7)</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <link rel="stylesheet" href="week7.css">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+        integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
+
+    <script src="products.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+
+</head>
+
+<body class="m-2">
+    <div id="app">
+        <header>
+            <h1 v-text="sitename"></h1>
+            <button @click="showCheckout">
+                {{ cartItemCount }}
+                <span class="fas fa-cart-plus"></span>Checkout
+
+            </button>
+        </header>
+        <main>
+            <div v-if="showProduct">
+                <div class="product" v-for="product in sortedProducts" :key="product.id">
+                    <figure>
+                        <img v-bind:src="product.image" height="200">
+                    </figure>
+
+                    <h2 v-text="product.title"></h2>
+                    <p v-html="product.description"></p>
+                    <p>Price: {{product.price}}</p>
+                    <!-- <input type="button" value="Add to Cart" v-on:click="addToCart"> -->
+
+                    <button v-on:click="addToCart(product)" v-if="canAddToCart(product)">
+                        Add To Cart
+                    </button>
+                    <button disabled="disabled" v-else>
+                        Sold Out
+                    </button>
+
+                    <span v-if="product.availableInventory == cartCount(product.id)">
+                        All Out!
+                    </span>
+
+                    <span v-else-if="product.availableInventory - cartCount(product.id) < 5">
+                        Only {{ product.availableInventory - cartCount(product.id) }} remaning!
+                    </span>
+                    <span v-else> Buy now!</span>
+                    <div>
+                        <span v-for="n in product.rating">★</span>
+                        <span v-for="n in 5-product.rating">☆</span>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div v-else>
+                <h1>Hey! This is the Checkout page.</h1>
+
+                <p>
+                    <strong>First Name:</strong>
+                    <input v-model.trim="order.firstName">
+                </p>
+                <p>
+                    <strong>Last Name:</strong>
+                    <input v-model.trim="order.lastName">
+                </p>
+
+                <p>
+                    <strong>Address:</strong>
+                    <input v-model="order.address">
+                </p>
+                <p>
+                    <strong>City:</strong>
+                    <input v-model="order.city">
+                </p>
+                <p>
+                    <strong>State:</strong>
+                    <select v-model="order.state" class="form-control w-auto">
+                        <!-- <option disabled value="">State</option>
+                        <option v-bind:value="states.AL">AL</option>
+                        <option v-bind:value="states.AR">AR</option>
+                        <option v-bind:value="states.CA">CA</option>
+                        <option v-bind:value="states.NV">NV</option> -->
+
+                        <option disabled value="">State</option>
+                        <option v-for="(state, key) in states" v-bind:value="state">
+                            {{ key }}
+                        </option>
+                    </select>
+                </p>
+                <p>
+                    <strong>Zip/Postal Code</strong>
+                    <input v-model.number="order.zip" type="number">
+                </p>
+                <p>
+                    <input type="checkbox" id="gift" value="true" v-model="order.gift"
+                        v-bind:true-value="order.sendGift" v-bind:false-value="order.dontSendGift">
+                    <label for="gift">Ship As Gift</label>
+                </p>
+                <p>
+                    <input type="radio" id="home" value="Home" v-model="order.method">
+                    <label for="home">Home</label>
+                    <input type="radio" id="business" value="Business" v-model="order.method">
+                    <label for="business">Business</label>
+                </p>
+
+                <h2>Order Info</h2>
+                <p>First Name: {{ order.firstName }}</p>
+                <p>Last Name: {{ order.lastName }}</p>
+                <p>Address: {{ order.address }} </p>
+                <p>City: {{ order.city }}</p>
+                <p>Zip: {{ order.zip }}</p>
+                <p>State: {{ order.state }}</p>
+                <p>Ship as Gift? {{ order.gift }} </p>
+                <p>Method: {{ order.method }}</p>
+
+                <button v-on:click="submitForm">Place Order</button>
+
+            </div>
+
+
+        </main>
+    </div>
+
+    <script>
+
+        let webstore = new Vue({
+            el: "#app",
+            data: {
+                sitename: "Vue.js Pet Depot",
+                showProduct: true,
+                states: {
+                    AL: "Alabama",
+                    AR: "Arizona",
+                    CA: "California",
+                    NV: "Nevada",
+                    DXB: "Dubai",
+                    KK: "Krish Kalvani",
+                    MV: "Milan Varughese"
+                },
+                order: {
+                    firstName: '',
+                    lastName: '',
+                    address: '',
+                    city: '',
+                    state: '',
+                    zip: '',
+                    gift: false,
+                    sendGift: "Send as a gift",
+                    dontSendGift: "Do not send as a gift",
+                    method: 'Home'
+
+                },
+                // product: {
+                //     id: 1001,
+                //     rating: 3,
+                //     title: "Cat Food, 25lb bag",
+                //     description: "A 25 pound bag of <em>irresistible</em> "+"organic goodness for your cat.",
+                //     price: 2000,
+                //     image: "../Week 3/images/cat.jpeg",
+                //     availableInventory: 10
+                // },
+                products: products,
+                cart: []
+            },
+            methods: {
+                addToCart: function (product) {
+                    console.log("Added to cart!");
+                    this.cart.push(product.id);
+                },
+                canAddToCart: function (product) {
+                    return product.availableInventory > this.cartCount(product.id);
+                },
+                cartCount(id) {
+                    let count = 0;
+                    for (let i = 0; i < this.cartItemCount; i++) {
+                        if (this.cart[i] === id) {
+                            count++;
+                        }
+                    }
+                    return count;
+                },
+                showCheckout: function () {
+                    this.showProduct = this.showProduct ? false : true;
+                },
+                submitForm: function () {
+                    alert("Order Submitted!");
+                }
+            },
+            computed: {
+                cartItemCount: function () {
+                    return this.cart.length;
+                },
+                sortedProducts() {
+                    let productsArray = this.products.slice(0);
+                    function compare(a, b) {
+                        if (a.price > b.price) {
+                            return 1;
+                        }
+                        if (b.price > a.price) {
+                            return -1;
+                        }
+                    }
+                    return productsArray.sort(compare);
+                }
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
