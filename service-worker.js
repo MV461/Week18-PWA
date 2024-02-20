@@ -17,9 +17,23 @@ self.addEventListener('install', (e) => {
     console.log('[Service Worker] Install');
     e.waitUntil(
         caches.open(cacheName)
-        .then((cache) => {
-            console.log('[Service Worker] Caching all the files');
-            return cache.addAll(cacheFiles);
+            .then((cache) => {
+                console.log('[Service Worker] Caching all the files');
+                return cache.addAll(cacheFiles);
+            })
+    );
+});
+
+self.addEventListener('fetch', (e) => {
+    e.respondWith(
+        // check if the cache has the file
+        caches.match(e.request)
+        .then((r) => {
+
+            console.log('[Service Worker] Fetching resource: ' + e.request.url);
+
+            // 'r' is the matching file if it exists in the cache
+            return r;
         })
     );
 });
