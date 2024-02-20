@@ -1,0 +1,11 @@
+{
+    "name": "Week 7 Pet Store - Week 18 PWA",
+    "icons": [
+        {
+            "src": "images/icon-store-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "Week7.html"
+}
