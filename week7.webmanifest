@@ -1,5 +1,8 @@
 {
     "name": "Week 7 Pet Store - Week 18 PWA",
+    "origin": "*",
+    "short_name": "petstore",
+    "methods":"GET,HEAD,PUT,PATCH,POST,DELETE",
     "icons": [
         {
             "src": "images/icon-store-512.png",
@@ -7,5 +10,7 @@
             "type": "image/png"
         }
     ],
-    "start_url": "index.html"
+    "start_url": "index.html",
+    "display": "fullscreen",
+    "background_color": "#B12A34"
 }
